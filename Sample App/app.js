@@ -1,14 +1,7 @@
-var window = Ti.UI.createWindow({backgroundColor:'black'});
-
-var platino = require('co.lanica.platino');
-var game = platino.createGameView();
-game.color(0, 0, 0);
-game.debug = true;
-
-var scene = platino.createScene();
-
-var bg = platino.createSprite({image:"background.jpg"});
-scene.add(bg);
+// Create the window
+var win = Ti.UI.createWindow({
+	backgroundImage: "background.jpg"
+});
 
 // Include Ego
 Ti.include('ego.js');
@@ -20,101 +13,75 @@ var loadedFile = loadFile("myFile.txt");
 var score = Number(loadedFile);
 
 // Add some text to show the score
-var scoreText = platino.createTextSprite({text:loadedFile, fontSize:32, x:140,y:100, height:60,width:400});
-scoreText.color(1,1,1);
-scene.add(scoreText);
-
-// A table to hold all touchable sprites on screen
-var touchables = [];
+var scoreText = Ti.UI.createLabel({
+	text: loadedFile,
+	font: {fontSize:32},
+	top: "20%",
+	color: "#000"
+});
+win.add(scoreText);
 
 // Minus sign sprite
-var minusSign = platino.createSprite({image:"-.png", x:60, y:230});
-scene.add(minusSign);
-touchables.push(minusSign);
+var minusBtn = Ti.UI.createImageView({
+	image: "-.png",
+	top: "70%",
+	left: "30"
+});
+win.add(minusBtn);
 
 // Plus sign sprite
-var plusSign = platino.createSprite({image:"+.png", x:190, y:200});
-scene.add(plusSign);
-touchables.push(plusSign);
+var plusBtn = Ti.UI.createImageView({
+	image: "+.png",
+	top: "68%",
+	right: "30"
+});
+win.add(plusBtn);
 
 // Save button sprite
-var saveBtn = platino.createSprite({image:"save.png", x:50, y:400});
-scene.add(saveBtn);
-touchables.push(saveBtn);
+var saveBtn = Ti.UI.createImageView({
+	image: "save.png",
+	top: "85%",
+	left: "10%"
+});
+win.add(saveBtn);
 
 // Load button sprite
-var loadBtn = platino.createSprite({image:"load.png", x:190, y:400});
-scene.add(loadBtn);
-touchables.push(loadBtn);
-
-// Function for touch end on screen
-var touchEnd = function(e){
-        if(minusSign.contains(e.x,e.y)){
-            score = score - 1;
-            scoreText.text = score;
-        }
-        else if(plusSign.contains(e.x,e.y)){
-            score = score + 1;
-            scoreText.text = score;
-        }
-        else if(saveBtn.contains(e.x,e.y)){
-            saveFile("myFile.txt", ""+score+"");
-        }
-        else if(loadBtn.contains(e.x,e.y)){
-            loadedFile = loadFile("myFile.txt");
-            score = Number(loadedFile);
-            scoreText.text = score;
-        }
-};
-game.addEventListener("touchend", touchEnd);
-
-// Push the scene
-game.pushScene(scene);
-
-// Set initial screen size
-var screenHeight = Ti.Platform.displayCaps.platformHeight;
-if (screenHeight >= 568) {
-    screenHeight = 568;
-	} else {
-        screenHeight = 480;
-	}
-	game.TARGET_SCREEN = {
-		width: 320,
-		height: screenHeight
-};
-
-// Set initial touch coords
-game.touchScaleX = 1;
-game.touchScaleY = 1;
-
-// Update screen size and touch coords
-var updateScreenSize = function() {
-	var screenScale = game.size.height / game.TARGET_SCREEN.height;
-	game.screen = {
-		width: game.size.width / screenScale,
-		height: game.size.height / screenScale
-	};
-	game.touchScaleX = game.screen.width  / game.size.width;
-	game.touchScaleY = game.screen.height / game.size.height;
-	game.screenScale = game.screen.height / game.TARGET_SCREEN.height;
-};
-
-// Function for when the game is loaded
-game.addEventListener('onload', function(e) {
-    
-    bg.height = game.screen.height;
-    
-    // Convenience function to convert Titanium coordinate from a Platino coordinate
-    updateScreenSize();
-	game.getTiScale = function(x, y) {
-		return {
-			x: (x / game.touchScaleX),
-			y:(y / game.touchScaleY) };
-		};
-
-    game.start();
+var loadBtn = Ti.UI.createImageView({
+	image: "load.png",
+	top: "85%",
+	right: "10%"
 });
+win.add(loadBtn);
 
-// Add the game to the window and open it
-window.add(game);
-window.open({fullscreen:true, navBarHidden:true});
+// Minus function
+var touchMinus = function(){
+	score = score - 1;
+	scoreText.text = score;
+};
+
+// Plus function
+var touchPlus = function(){
+	score = score + 1;
+	scoreText.text = score;
+};
+
+// Save function
+var touchSave = function(){
+	saveFile("myFile.txt", ""+score+"");
+};
+
+// Load function
+var touchLoad = function(){
+	loadedFile = loadFile("myFile.txt");
+	score = Number(loadedFile);
+	scoreText.text = score;
+};
+
+
+minusBtn.addEventListener("click", touchMinus);
+plusBtn.addEventListener("click", touchPlus);
+saveBtn.addEventListener("click", touchSave);
+loadBtn.addEventListener("click", touchLoad);
+
+// Open window
+win.open({fullscreen:true, navBarHidden:true});
